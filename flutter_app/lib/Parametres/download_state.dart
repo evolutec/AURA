@@ -449,7 +449,7 @@ class _Panel extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Container(
-        width: 320,
+        width: 360,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: const Color(0xFF1E222C),
@@ -464,14 +464,17 @@ class _Panel extends StatelessWidget {
               children: [
                 const Icon(Icons.download, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
-                const Text(
-                  'Download manager',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                const Expanded(
+                  child: Text(
+                    'Download manager',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.minimize, color: Colors.white, size: 18),
                   onPressed: manager.minimize,
@@ -503,7 +506,9 @@ class _Panel extends StatelessWidget {
                   children: [
                     Text(
                       t.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                     const SizedBox(height: 4),
                     LinearProgressIndicator(
@@ -514,11 +519,15 @@ class _Panel extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Text(
-                          '${(t.progress * 100).toStringAsFixed(0)}%',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 11,
+                        Flexible(
+                          child: Text(
+                            '${(t.progress * 100).toStringAsFixed(0)}%',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                         const Spacer(),

@@ -56,7 +56,8 @@ add_subdirectory("runner")
 # Generated plugin build rules, which manage building the plugins and adding
 # them to the application.
 include(flutter/generated_plugins.cmake)
-chromium_webview_enable_sandbox(${BINARY_NAME})
+# Sandbox disabled for development: CEF requires the bootstrap runner otherwise.
+# chromium_webview_enable_sandbox(${BINARY_NAME})
 
 
 # === Installation ===

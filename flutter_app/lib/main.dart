@@ -47,11 +47,15 @@ void main() async {
     await desktopService.init();
   }
   final cacheDir = await getApplicationSupportDirectory();
-  final cefReady = await ChromiumWebViewController.initialize(
-    cachePath: cacheDir.path,
-  );
-  if (!cefReady) {
-    AppLogger.error('Failed to initialize Chromium runtime');
+  try {
+    final cefReady = await ChromiumWebViewController.initialize(
+      cachePath: cacheDir.path,
+    );
+    if (!cefReady) {
+      AppLogger.error('Failed to initialize Chromium runtime');
+    }
+  } catch (e) {
+    AppLogger.error('Chromium init failed: $e');
   }
   runApp(const AuraApp());
 }
@@ -200,7 +204,9 @@ class _AuraAppState extends State<AuraApp> {
       locale: Locale(_lang),
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(_appearance.textScale * _appearance.uiScale),
+          textScaler: TextScaler.linear(
+            _appearance.textScale * _appearance.uiScale,
+          ),
         ),
         child: Stack(
           children: [
@@ -453,8 +459,42 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       if (alive) {
         _multiServers[entry.model] = proc;
         _loadedModels.add(entry.model);
+        _multiStatus[entry.model] = "Ready (VRAM)";
+        _serverMeta[entry.model] = _ServerMeta(
+          id: entry.id,
+          port: entry.port,
+          model: entry.model,
+          mmproj: entry.mmproj,
+          pid: proc.pid ?? entry.pid,
+        );
+      } else if (modelFile.existsSync() && _loadedModels.contains(entry.model)) {
+        // Le process a disparu (VRAM libérée à la fermeture) : on le relance
+        // avec le même id/port pour que le modèle reste marqué comme chargé.
+        try {
+          await proc.start(
+            modelFile.path,
+            mmprojPath: entry.mmproj,
+            port: entry.port,
+          );
+          _multiServers[entry.model] = proc;
+          _loadedModels.add(entry.model);
+          _multiStatus[entry.model] = "Ready (VRAM)";
+          _serverMeta[entry.model] = _ServerMeta(
+            id: entry.id,
+            port: entry.port,
+            model: entry.model,
+            mmproj: entry.mmproj,
+            pid: proc.pid,
+          );
+        } catch (e) {
+          _multiStatus[entry.model] = "Stopped";
+        }
+      } else {
+        _multiStatus[entry.model] = "Stopped";
       }
     }
+    if (mounted) setState(() {});
+    await _savePrefs();
   }
 
   Future<void> _refreshToolsAvailability() async {
@@ -873,97 +913,116 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
-          height: 60,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
           decoration: BoxDecoration(
             color: _bg,
             border: Border(bottom: BorderSide(color: _border)),
           ),
-          child: Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _chatTitle,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: _text,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _selectedModel ?? AppLocalizations.of(context)!.aura,
-                    style: TextStyle(fontSize: 17, color: _muted),
-                  ),
-                ],
-              ),
-              const Spacer(),
-              if (_toolDock.isNotEmpty)
-                IconButton(
-                  icon: Icon(
-                    _dockOpen ? Icons.chevron_right : Icons.terminal,
-                    size: 18,
-                    color: _accent,
-                  ),
-                  onPressed: () => setState(() => _dockOpen = !_dockOpen),
-                  tooltip: _dockOpen ? 'Masquer les outils' : 'Afficher les outils',
-                  visualDensity: VisualDensity.compact,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final compact = constraints.maxWidth < 560;
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 10,
                 ),
-              // Language selector
-              DropdownButton<String>(
-                value: widget.lang,
-                dropdownColor: _panel2,
-                underline: const SizedBox(),
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 16,
-                  color: _white70,
-                ),
-                items: _languages
-                    .map(
-                      (l) => DropdownMenuItem<String>(
-                        value: l.$1,
-                        child: Text(
-                          l.$2,
-                          style: TextStyle(color: _text, fontSize: 13),
-                        ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _chatTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: _text,
+                            ),
+                          ),
+                          if (!compact) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              _selectedModel ??
+                                  AppLocalizations.of(context)!.aura,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontSize: 17, color: _muted),
+                            ),
+                          ],
+                        ],
                       ),
-                    )
-                    .toList(),
-                onChanged: (v) {
-                  if (v != null) widget.onSetLang(v);
-                },
-              ),
-              const SizedBox(width: 16),
-              // Theme toggle
-              IconButton(
-                icon: Icon(
-                  widget.isDark ? Icons.brightness_4 : Icons.brightness_2,
-                  size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    if (_toolDock.isNotEmpty)
+                      IconButton(
+                        icon: Icon(
+                          _dockOpen ? Icons.chevron_right : Icons.terminal,
+                          size: 18,
+                          color: _accent,
+                        ),
+                        onPressed: () => setState(() => _dockOpen = !_dockOpen),
+                        tooltip: _dockOpen
+                            ? 'Masquer les outils'
+                            : 'Afficher les outils',
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    DropdownButton<String>(
+                      value: widget.lang,
+                      dropdownColor: _panel2,
+                      underline: const SizedBox(),
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 16,
+                        color: _white70,
+                      ),
+                      items: _languages
+                          .map(
+                            (l) => DropdownMenuItem<String>(
+                              value: l.$1,
+                              child: Text(
+                                l.$2,
+                                style: TextStyle(color: _text, fontSize: 13),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) {
+                        if (v != null) widget.onSetLang(v);
+                      },
+                    ),
+                    const SizedBox(width: 16),
+                    IconButton(
+                      icon: Icon(
+                        widget.isDark ? Icons.brightness_4 : Icons.brightness_2,
+                        size: 20,
+                      ),
+                      color: _white70,
+                      onPressed: widget.onToggleTheme,
+                      tooltip: widget.isDark
+                          ? AppLocalizations.of(context)!.lightMode
+                          : AppLocalizations.of(context)!.darkMode,
+                    ),
+                    if (isDesktop) ...[
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.minimize, size: 20),
+                        color: _white70,
+                        onPressed: () => desktopService.minimize(),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        color: _white70,
+                        onPressed: () => desktopService.close(),
+                      ),
+                    ],
+                  ],
                 ),
-                color: _white70,
-                onPressed: widget.onToggleTheme,
-                tooltip: widget.isDark
-                    ? AppLocalizations.of(context)!.lightMode
-                    : AppLocalizations.of(context)!.darkMode,
-              ),
-              if (isDesktop) ...[
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.minimize, size: 20),
-                  color: _white70,
-                  onPressed: () => desktopService.minimize(),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, size: 20),
-                  color: _white70,
-                  onPressed: () => desktopService.close(),
-                ),
-              ],
-            ],
+              );
+            },
           ),
         ),
       ),
