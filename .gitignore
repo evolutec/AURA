@@ -81,5 +81,8 @@ desktop.ini
 Sources_inspiration/
 Analyses/
 
+# Kilo
+.kilo/
+
 # Keep pubspec.lock for apps
 !pubspec.lock
