@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.aura.Aura</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <name>AURA</name>
+  <summary>The Swiss knife of AI - local + cloud LLM assistant</summary>
+
+  <description>
+    <p>
+      AURA is a multiplatform AI assistant that combines local LLM inference
+      (llama.cpp, LiteRT-LM, ONNX Runtime) with cloud providers (OpenAI, Anthropic,
+      Google, Grok, DeepSeek, OpenRouter, MiniMax, MiMo).
+    </p>
+    <p>Features:</p>
+    <ul>
+      <li>Chat with local and cloud LLMs (streaming)</li>
+      <li>Multi-engine: llama.cpp, LiteRT-LM, ONNX Runtime, sherpa-onnx</li>
+      <li>Hardware-aware model selection (CPU/GPU/NPU)</li>
+      <li>Agents, skills, MCP servers, orchestrator</li>
+      <li>RAG with embeddings and vector search</li>
+      <li>Voice mode (ASR + TTS)</li>
+      <li>Image generation and vision</li>
+      <li>7 languages + dark/light theme</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">com.aura.Aura.desktop</launchable>
+
+  <screenshots>
+    <screenshot type="default">
+      <caption>Main chat interface</caption>
+      <image>https://aura.dev/screenshots/chat.png</image>
+    </screenshot>
+  </screenshots>
+
+  <url type="homepage">https://github.com/evolu/Aura</url>
+  <url type="bugtracker">https://github.com/evolu/Aura/issues</url>
+
+  <provides>
+    <binary>aura</binary>
+  </provides>
+
+  <releases>
+    <release version="0.1.0" date="2026-11-23">
+      <description>
+        <p>Initial release: local + cloud LLM chat, multi-engine, agents, RAG.</p>
+      </description>
+    </release>
+  </releases>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-cartoon">none</content_attribute>
+    <content_attribute id="violence-fantasy">none</content_attribute>
+    <content_attribute id="violence-realistic">none</content_attribute>
+    <content_attribute id="drugs-alcohol">none</content_attribute>
+    <content_attribute id="language-profanity">none</content_attribute>
+    <content_attribute id="social-chat">intense</content_attribute>
+  </content_rating>
+</component>

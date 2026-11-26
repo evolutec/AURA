@@ -1,0 +1,66 @@
+# AURA Flatpak Manifest
+# Build : flatpak-builder --user --install --force-clean build-flatpak com.aura.Aura.yml
+# Export : flatpak build-bundle ~/.local/share/flatpak/repo aura.flatpak com.aura.Aura
+
+app-id: com.aura.Aura
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: aura
+
+finish-args:
+  # Network (cloud providers, downloads)
+  - --share=network
+  # X11 + Wayland
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  # D-Bus (notifications, secret service)
+  - --socket=session-bus
+  - --system-talk-name=org.freedesktop.GeoClue2
+  # Filesystem
+  - --filesystem=home
+  - --filesystem=xdg-download
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-pictures
+  # Audio (micro, TTS)
+  - --socket=pulseaudio
+  # GPU
+  - --device=dri
+  # Camera
+  - --device=video
+  # Bluetooth (optionnel)
+  - --allow=bluetooth
+  # Tray
+  - --talk-name=org.kde.StatusNotifierWatcher
+  # Secret Service (Keychain Linux)
+  - --talk-name=org.freedesktop.secrets
+  # Notifications
+  - --talk-name=org.freedesktop.Notifications
+
+modules:
+  # 1. Rust core (aura_core)
+  - name: aura-core
+    buildsystem: simple
+    build-commands:
+      - cargo build --release --target x86_64-unknown-linux-gnu -p aura-core
+      - install -Dm644 target/x86_64-unknown-linux-gnu/release/libaura_core.so /app/lib/libaura_core.so
+    sources:
+      - type: dir
+        path: ../../core
+
+  # 2. AURA Flutter app
+  - name: aura-app
+    buildsystem: simple
+    build-commands:
+      - flutter build linux --release
+      - install -Dm755 build/linux/x64/release/bundle/aura_app /app/bin/aura
+      - cp -r build/linux/x64/release/bundle/lib /app/lib/
+      - cp -r build/linux/x64/release/bundle/data /app/data/
+      - install -Dm644 assets/logo.jpg /app/share/icons/hicolor/256x256/apps/com.aura.Aura.png
+    sources:
+      - type: dir
+        path: ../flutter_app
+    build-options:
+      env:
+        PATH: /app/bin:/usr/bin:/bin

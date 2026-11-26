@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=AURA
+Comment=The Swiss knife of AI - local + cloud LLM assistant
+Exec=aura
+Icon=com.aura.Aura
+Terminal=false
+Categories=Utility;Development;
+Keywords=AI;LLM;local;cloud;assistant;chat;llama;gpt;
+StartupWMClass=aura
+StartupNotify=true
+MimeType=application/x-aura;text/plain;image/*;

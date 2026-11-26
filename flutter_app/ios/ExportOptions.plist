@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Distribution method -->
+    <key>method</key>
+    <string>app-store-connect</string>
+
+    <!-- Team ID (à remplacer par le tien) -->
+    <key>teamID</key>
+    <string>ABCDE12345</string>
+
+    <!-- Upload symbols -->
+    <key>uploadSymbols</key>
+    <true/>
+
+    <!-- Compile bitcode -->
+    <key>compileBitcode</key>
+    <false/>
+
+    <!-- Strip Swift symbols -->
+    <key>stripSwiftSymbols</key>
+    <true/>
+
+    <!-- Destination export -->
+    <key>destination</key>
+    <string>export</string>
+
+    <!-- Signing style -->
+    <key>signingStyle</key>
+    <string>automatic</string>
+
+    <!-- Provisioning profiles -->
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.aura.aura_app</key>
+        <string>AURA App Store</string>
+    </dict>
+</dict>
+</plist>

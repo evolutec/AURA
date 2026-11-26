@@ -1,0 +1,16 @@
+{
+  "configurations": [
+    {
+      "id": "aura-widget",
+      "name": "AURA Widget",
+      "comment": "WidgetKit extension for AURA - shows inference stats and quick chat access",
+      "targetType": "widget-extension",
+      "bundleIdentifierSuffix": ".AuraWidget",
+      "infoPlistPath": "AuraWidget/Info.plist",
+      "entitlementsPath": "AuraWidget/AuraWidget.entitlements",
+      "sourceFiles": [
+        "AuraWidget/AuraWidget.swift"
+      ]
+    }
+  ]
+}

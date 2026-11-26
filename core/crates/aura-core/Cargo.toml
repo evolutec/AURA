@@ -1,0 +1,39 @@
+[package]
+name = "aura-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "AURA portable native core: multi-engine inference abstraction, hardware detection, RAM-aware engine selection, session manager, stable C ABI."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sysinfo = "0.40"
+llama-cpp-2 = { version = "0.1.161", optional = true }
+ort = { version = "2.0.0-rc.15", optional = true, default-features = false, features = ["std", "download-binaries", "copy-dylibs", "tls-native"] }
+tokenizers = { version = "0.15", optional = true }
+
+[features]
+default = []
+# Real llama.cpp backend (llama-cpp-2). Disabled by default so the core builds
+# everywhere without a C++ toolchain; enable with --features llama.
+llama = ["dep:llama-cpp-2"]
+# ONNX Runtime backend (embeddings, vision, audio, custom .onnx models) + tokenizer.
+onnx = ["dep:ort", "dep:tokenizers"]
+# LiteRT-LM backend (Gemma / .litertlm). Stub for now.
+litert = []
+# sherpa-onnx backend (TTS/ASR). Stub for now.
+sherpa = []
+# RPC / distributed inference support.
+rpc = []
+# Enable all real backends.
+full = ["llama", "onnx", "litert", "sherpa", "rpc"]
+
+# GPU backends for llama.cpp (pick one according to the build machine's GPU).
+# `llama-vulkan` is the portable path and works on NVIDIA, AMD and Intel.
+llama-vulkan = ["llama", "llama-cpp-2/vulkan"]
+llama-cuda = ["llama", "llama-cpp-2/cuda"]
+llama-rocm = ["llama", "llama-cpp-2/rocm"]

@@ -1,0 +1,19 @@
+{
+  "name": "aura-node",
+  "version": "0.1.0",
+  "description": "AURA portable native core — Node.js binding",
+  "main": "aura_node.node",
+  "napi": {
+    "name": "aura_node",
+    "triples": {
+      "defaults": true
+    }
+  },
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  }
+}

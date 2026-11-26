@@ -1,0 +1,18 @@
+[package]
+name = "aura-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Minimal llama.cpp server process for AURA multi-model mode."
+
+[dependencies]
+aura-core = { path = "../aura-core", features = ["llama"] }
+serde_json = "1"
+
+[features]
+default = []
+# GPU offload backends. Build with `--features vulkan` (portable, Intel/AMD/NVIDIA),
+# `--features cuda` (NVIDIA) or `--features rocm` (AMD).
+vulkan = ["aura-core/llama-vulkan"]
+cuda = ["aura-core/llama-cuda"]
+rocm = ["aura-core/llama-rocm"]

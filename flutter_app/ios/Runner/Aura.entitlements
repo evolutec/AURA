@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Keychain sharing (stockage sécurisé des clés API) -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>$(AppIdentifierPrefix)com.aura.aura_app</string>
+    </array>
+
+    <!-- App Groups (partage entre AURA et ses extensions) -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>group.com.aura.aura_app</string>
+    </array>
+
+    <!-- Network -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.network.server</key>
+    <true/>
+
+    <!-- Local network (Ollama discovery) -->
+    <key>com.apple.security.network.local</key>
+    <true/>
+
+    <!-- Microphone -->
+    <key>com.apple.security.device.audio-input</key>
+    <true/>
+
+    <!-- Camera -->
+    <key>com.apple.security.device.camera</key>
+    <true/>
+
+    <!-- File access -->
+    <key>com.apple.security.files.user-selected.read-only</key>
+    <true/>
+    <key>com.apple.security.files.downloads.read-write</key>
+    <true/>
+
+    <!-- Calendars -->
+    <key>com.apple.security.personal-information.calendars</key>
+    <true/>
+
+    <!-- Location -->
+    <key>com.apple.security.personal-information.location</key>
+    <true/>
+
+    <!-- (macOS only - ignoré sur iOS) -->
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+</dict>
+</plist>
